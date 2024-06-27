@@ -1,0 +1,38 @@
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-storage-host-header
+  namespace: default
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  headers:
+    customRequestHeaders:
+      Host: "{{.Values.pages.storageHost}}"
+---
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-custom-headers
+  namespace: default
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  headers:
+    customResponseHeaders:
+      ResponseHeader: "value"
+    customRequestHeaders:
+      RequestHeader: "value"
+---
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: strip-slash
+  namespace: default
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  stripPrefix:
+    prefixes:
+      - /
+    forceSlash: false

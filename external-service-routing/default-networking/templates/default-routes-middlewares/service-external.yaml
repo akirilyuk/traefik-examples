@@ -1,0 +1,10 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: storage-external
+  namespace: default
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  type: ExternalName
+  externalName: "{{.Values.pages.storageHost}}"

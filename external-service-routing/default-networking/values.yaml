@@ -1,0 +1,6 @@
+pages:
+  host: 'my.example.ingress.host.domain.com'
+  withHeaders: true
+  storageHost: 'storage.googleapis.com'
+packageName: 'external-pages-routing'
+crdApiVersion: 'traefik.containo.us/v1alpha1'

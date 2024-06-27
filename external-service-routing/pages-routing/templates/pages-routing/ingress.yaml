@@ -1,0 +1,89 @@
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: IngressRoute
+metadata:
+  labels:
+    package: "{{.Values.packageName}}"
+  name: static-pages-{{.Values.pages.bucketName}}-{{.Values.pages.dirName}}
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`{{ .Values.pages.host }}`) && Path(`/`)
+      kind: Rule
+      services:
+        - name: storage-external
+          port: 443
+          scheme: https
+          kind: Service
+          namespace: default
+      middlewares:
+       - name: add-bucket-path-root
+    - match: Host(`{{ .Values.pages.host }}`) && Path(`/{path:(.+)}`)
+      kind: Rule
+      services:
+        - name: storage-external
+          port: 443
+          scheme: https
+          kind: Service
+          namespace: default
+      middlewares:
+        - name: add-bucket-path-wildcard
+  tls:
+    certResolver: default
+---
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-bucket-path-root
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  chain:
+    middlewares:
+      - name: add-storage-host-header
+        namespace: default
+      - name: add-page-path-index
+      - name: strip-slash
+        namespace: default
+      {{if .Values.pages.withHeaders }}
+      - name: add-custom-headers
+        namespace: default
+      {{ end }}
+---
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-bucket-path-wildcard
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  chain:
+    middlewares:
+      - name: add-storage-host-header
+        namespace: default
+      - name: add-page-path
+      {{if .Values.pages.withHeaders }}
+      - name: add-custom-headers
+        namespace: default
+      {{ end }}
+---
+# Prefixing with /foo
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-page-path-index
+  labels:
+    package: "{{.Values.packageName}}"
+spec:
+  replacePath:
+    path: /{{.Values.pages.bucketName}}/{{.Values.pages.dirName}}/index.html
+---
+# Prefixing with /foo
+apiVersion: "{{.Values.crdApiVersion}}"
+kind: Middleware
+metadata:
+  name: add-page-path
+spec:
+  replacePathRegex:
+    regex: ^/(.*)
+    replacement: /{{.Values.pages.bucketName}}/{{.Values.pages.dirName}}/$1

@@ -1,0 +1,12 @@
+# Default values for wle-netcode.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+pages:
+  host: 'my.example.ingress.host.domain.com'
+  withHeaders: true
+  storageHost: 'storage.googleapis.com'
+  bucketName: 'example-bucket'
+  dirName: 'exampleDirName'
+packageName: 'external-pages-routing'
+crdApiVersion: 'traefik.containo.us/v1alpha1'
